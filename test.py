@@ -1,16 +1,14 @@
 import re
 import unittest
+from smcdog import parse_speed
 
 
 class SMC_test(unittest.TestCase):
     def test_speed_read(self):
-        out_text = "  F0Mx  [fpe2]  4500.00 (bytes 46 50)"
-        bytes_reg = '.*bytes (.*)\)'
-
-        low, high = re.search(bytes_reg, out_text).group(1).split()
-        speed = ((int(low, 16) * 256) + int(high, 16)) / 4
+        smc_out_text = "  F0Mx  [fpe2]  4500.00 (bytes 46 50)"
+        speed = parse_speed(smc_out_text)
         
-        self.assertEqual(float('4500.00'), float(speed))
+        self.assertEqual('4500', speed)
     
     def test_temp_read(self):
         out_text = "  TC0D  [sp78]  59.375 (bytes 3b 60)"
