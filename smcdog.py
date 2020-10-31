@@ -1,5 +1,5 @@
-# TODO: smc -k TC0D -r - from hex to decimal / 256
-# TODO: increase fan speed when temperature goes up to critical level
+# TODO: increase fan speed when temperature goes up to the critical level
+# TODO: decrease fan speed when temperature goes down to the normal level
 #   NOTE: command to get CPU temperature:
 #   smc -k TC0D -r | sed 's/.*bytes \(.*\))/\1/' |sed 's/\([0-9a-fA-F]*\)/0x\1/g' | perl -ne 'chomp; ($low,$high) = split(/ /); print (((hex($low)*256)+hex($high))/4/64); print "\n";'
 
@@ -61,18 +61,25 @@ def change_speed(target_speed: int) -> Tuple[str, str]:
 
 def get_current_speed() -> int:
     out, err = exec_cmd(SMC_PATH, params=['-k', 'F0Mx', '-r'])
-    return int(parse_speed(out))
+    return parse_speed(out)
 
 
-def parse_speed(smc_output: str) -> str:
-    """parsing: F0Mx  [fpe2]  4000 (bytes 3e 80)"""
+def parse_speed(smc_output: str) -> int:
+    """parse utility output to get fan speed value"""
+    speed = extract_byte_value(smc_output) / 4
+    return int(speed)
 
+
+def parse_temperature(smc_output: str) -> float:
+    """parse utility output to get cpu temp value"""
+    temp = extract_byte_value(smc_output) / 256
+    return float(temp)
+
+
+def extract_byte_value(data: str) -> int:
     bytes_reg = '.*bytes (.*)\)'
-
-    low, high = re.search(bytes_reg, smc_output).group(1).split()
-    speed = ((int(low, 16) * 256) + int(high, 16)) / 4
-
-    return str(int(speed))
+    low, high = re.search(bytes_reg, data).group(1).split()
+    return ((int(low, 16) * 256) + int(high, 16))
 
 
 def check_speed():
