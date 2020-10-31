@@ -10,6 +10,7 @@ import os
 import subprocess
 from typing import Tuple
 from datetime import datetime
+from collections import namedtuple
 
 FAN_SPEEDS = {
     6200: '60e0',
@@ -31,9 +32,12 @@ def to_log(message):
         f.write("%s: %s\n" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message))
 
 
-def settings():
-    with open(os.path.dirname(os.path.realpath(__file__)) + '/smcdog.conf', 'r') as f:
-        return json.loads(f.read())
+def config(filepath=None):
+    def decoder(obj_dict: dict) -> namedtuple:
+        return namedtuple('X', obj_dict.keys())(*obj_dict.values())
+
+    with open(filepath or os.path.dirname(os.path.realpath(__file__)) + '/smcdog.conf', 'r') as f:
+        return json.loads(f.read(), object_hook=decoder)
 
 
 def exec_cmd(cmd_path, params=None) -> Tuple[str, str]:
@@ -72,7 +76,7 @@ def parse_speed(smc_output: str) -> str:
 
 
 def check_speed():
-    target_speed = int(settings()['speed'])
+    target_speed = config().speed
 
     if target_speed != get_current_speed():
         to_log('Change to: %s' % target_speed)

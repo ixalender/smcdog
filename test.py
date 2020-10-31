@@ -1,9 +1,9 @@
 import re
 import unittest
-from smcdog import parse_speed
+from smcdog import parse_speed, config
 
 
-class SMC_test(unittest.TestCase):
+class SMCTest(unittest.TestCase):
     def test_speed_read(self):
         smc_out_text = "  F0Mx  [fpe2]  4500.00 (bytes 46 50)"
         speed = parse_speed(smc_out_text)
@@ -18,6 +18,11 @@ class SMC_test(unittest.TestCase):
         temp = ((int(low, 16) * 256) + int(high, 16)) / 4 / 64
         
         self.assertEqual(float('59.375'), float(temp))
+
+
+class SettingsTest(unittest.TestCase):
+    def test_settings_load(self):
+        self.assertEqual(4500, config('./fixtures/test.conf').speed)
 
 
 if __name__ == '__main__':
