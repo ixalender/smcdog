@@ -12,17 +12,6 @@ from typing import Tuple
 from datetime import datetime
 from collections import namedtuple
 
-FAN_SPEEDS = {
-    6200: '60e0',
-    5600: '5780',
-    5000: '4e20',
-    4800: '4b00',
-    4000: '3e80',
-    3600: '3840',
-    3000: '2ee0',
-    2500: '2710',
-}
-
 
 SMC_PATH = '/Applications/smcFanControl.app/Contents/Resources/smc'
 
@@ -48,10 +37,7 @@ def exec_cmd(cmd_path, params=None) -> Tuple[str, str]:
 
 
 def hex_speed(target_speed: int) -> str:
-    speed = FAN_SPEEDS.get(target_speed)
-    if speed is None:
-        speed = "%X" % (target_speed * 4)
-    return speed
+    return "%X" % (target_speed * 4)
 
 
 def change_speed(target_speed: int) -> Tuple[str, str]:
