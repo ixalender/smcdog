@@ -14,11 +14,15 @@ from collections import namedtuple
 
 
 SMC_PATH = '/Applications/smcFanControl.app/Contents/Resources/smc'
+LOG_FILE = 'logfile.log'
 
 
 def to_log(message):
-    with open(os.path.dirname(os.path.realpath(__file__)) + '/logfile.log', 'a') as f:
-        f.write("%s: %s\n" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message))
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    logpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), LOG_FILE)
+    print(logpath)
+    with open(logpath, 'a') as f:
+        f.write(f"{date}: {message}\n")
 
 
 def config(filepath=None):
@@ -68,9 +72,8 @@ def extract_byte_value(data: str) -> int:
     return ((int(low, 16) * 256) + int(high, 16))
 
 
-def check_speed():
+def manage_speed() -> int:
     target_speed = config().speed
-
     if target_speed != get_current_speed():
         to_log('Change to: %s' % target_speed)
         change_speed(target_speed)
@@ -79,4 +82,4 @@ def check_speed():
 
 
 if __name__ == '__main__':
-    print(check_speed())
+    print(manage_speed())
